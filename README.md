@@ -2,6 +2,9 @@
   * [Fleather Changelog](https://github.com/fleather-editor/fleather/blob/master/packages/fleather/CHANGELOG.md)
   * [Parchment Changelog](https://github.com/fleather-editor/fleather/blob/master/packages/parchment/CHANGELOG.md)
 
+# Demo
+A Web demo of Fleather can be found [here](./demo/index.html)
+
 # Documentation
 * [Quick Start](./doc/quick-start.md)
 * [Concepts](./doc/concepts/readme.md)
