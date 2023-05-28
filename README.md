@@ -1,6 +1,6 @@
 # Release Notes
-  * [Fleather Changelog](./packages/fleather/CHANGELOG.md)
-  * [Parchment Changelog](./packages/parchment/CHANGELOG.md)
+  * [Fleather Changelog](https://github.com/fleather-editor/fleather/blob/master/packages/fleather/CHANGELOG.md)
+  * [Parchment Changelog](https://github.com/fleather-editor/fleather/blob/master/packages/parchment/CHANGELOG.md)
 
 # Documentation
 * [Quick Start](./doc/quick-start.md)
