@@ -1,0 +1,3 @@
+[submodule "fleather"]
+	path = fleather
+	url = https://github.com/fleather-editor/fleather.git
