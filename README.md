@@ -10,9 +10,6 @@
 * Supports markdown shortcuts
 * Using [Quill.js Delta](https://quilljs.com/docs/delta) as underlying data format by [Parchment](packages/parchment/README.md), Fleather is ready for collaborative editing using [OT](https://en.wikipedia.org/wiki/Operational_transformation) (Not provided as a built-in functionality)
 
-## Demo
-A web demo is available [here](/demo/index.html)
-
 ## Release Notes
   * [Fleather Changelog](https://github.com/fleather-editor/fleather/blob/master/packages/fleather/CHANGELOG.md)
   * [Parchment Changelog](https://github.com/fleather-editor/fleather/blob/master/packages/parchment/CHANGELOG.md)
