@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,maximum-scale=2">
+    <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/style.css?v=283500f91980d91031e083409342feab137f96f8">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Frequently asked questions | Fleather</title>
+<meta name="generator" content="Jekyll v3.9.3" />
+<meta property="og:title" content="Frequently asked questions" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="http://localhost:4000/doc/faq.html" />
+<meta property="og:url" content="http://localhost:4000/doc/faq.html" />
+<meta property="og:site_name" content="Fleather" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Frequently asked questions" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","headline":"Frequently asked questions","url":"http://localhost:4000/doc/faq.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          
+            <a id="forkme_banner" href="https://github.com/fleather-editor/fleather-editor.github.io">View on GitHub</a>
+          
+
+          <h1 id="project_title">Fleather</h1>
+          <h2 id="project_tagline"></h2>
+
+          
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2 id="frequently-asked-questions">Frequently asked questions</h2>
+
+<h3 id="q-are-parchment-documents-compatible-with-quill-documents">Q: Are Parchment documents compatible with Quill documents?</h3>
+
+<p>Short answer is no. Even though Parchment uses Quill Delta as underlying
+representation for its documents there are at least differences in
+attribute declarations. For instance heading style in Quill
+editor uses “header” as the attribute key, in Parchment it’s “heading”.</p>
+
+<p>There are also semantic differences. In Quill, both list and heading
+styles are treated as block styles. This means applying “heading”
+style to a list item removes the item from the list. In Parchment, heading
+style is handled separately from block styles like lists and quotes.
+As a consequence you can have a heading line inside of a quote block.
+This is intentional and inspired by how Markdown handles such scenarios.
+In fact, Parchment format tries to follow Markdown semantics as close as
+possible.</p>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        
+        <p class="copyright">Fleather maintained by <a href="https://github.com/fleather-editor">fleather-editor</a></p>
+        
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+  </body>
+</html>

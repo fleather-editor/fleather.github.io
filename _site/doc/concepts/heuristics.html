@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,maximum-scale=2">
+    <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/style.css?v=283500f91980d91031e083409342feab137f96f8">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Heuristic rules | Fleather</title>
+<meta name="generator" content="Jekyll v3.9.3" />
+<meta property="og:title" content="Heuristic rules" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="http://localhost:4000/doc/concepts/heuristics.html" />
+<meta property="og:url" content="http://localhost:4000/doc/concepts/heuristics.html" />
+<meta property="og:site_name" content="Fleather" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Heuristic rules" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","headline":"Heuristic rules","url":"http://localhost:4000/doc/concepts/heuristics.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          
+            <a id="forkme_banner" href="https://github.com/fleather-editor/fleather-editor.github.io">View on GitHub</a>
+          
+
+          <h1 id="project_title">Fleather</h1>
+          <h2 id="project_tagline"></h2>
+
+          
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2 id="heuristic-rules">Heuristic rules</h2>
+
+<p>As it turns out, a good rich text editor not only allows the user to
+manually apply different styles to text in a document. It can also
+automatically apply certain styles based on the context of user
+actions.</p>
+
+<p>Some very common examples include autoformatting of links or inserting
+a new list item when user presses <code class="language-plaintext highlighter-rouge">Enter</code> key.</p>
+
+<p>In Parchment (document model used by Fleather editor), such rules are called
+<em>heuristic rules</em>. There are two main purposes for heuristic rules:</p>
+
+<ol>
+  <li>User experience: rules like above-mentioned autoformatting of links are here to make editing a user friendly process.</li>
+  <li>Semantics preservation: this is mostly invisible for the user but is very important nevertheless. There is a set of rules to make sure that a document change conforms to the data format and model semantics.</li>
+</ol>
+
+<p>Let’s cover the second item in more detail.</p>
+
+<h3 id="example-heuristic-rule">Example heuristic rule</h3>
+
+<p>Say, a user is editing following document (cursor position is indicated
+by pipe <code class="language-plaintext highlighter-rouge">|</code> character):</p>
+
+<blockquote>
+  <h3 id="document-title-styled-as-h3-heading">Document| title styled as h3 heading</h3>
+  <p>Regular paragraph with <strong>bold</strong> text.</p>
+</blockquote>
+
+<p>User decides to change the first line style from <code class="language-plaintext highlighter-rouge">h3</code> to <code class="language-plaintext highlighter-rouge">h2</code>. If we
+were to apply this change to the document in code it would look like
+this:</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="n">doc</span> <span class="o">=</span> <span class="n">getDocument</span><span class="o">();</span>
+<span class="kd">var</span> <span class="n">cursorPosition</span> <span class="o">=</span> <span class="mi">8</span><span class="o">;</span> <span class="c1">// after the word "Document"</span>
+<span class="kd">var</span> <span class="n">selectionLength</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="c1">// selection is collapsed.</span>
+<span class="kd">var</span> <span class="n">change</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="na">format</span><span class="o">(</span>
+  <span class="n">cursorPosition</span><span class="o">,</span> <span class="n">selectionLength</span><span class="o">,</span> <span class="n">ParchmentAttribute</span><span class="o">.</span><span class="na">heading</span><span class="o">.</span><span class="na">level2</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>If we try to apply this change as-is it would have no effect or, more
+likely, result in an <code class="language-plaintext highlighter-rouge">AssertionError</code> because we are trying to apply line style
+to a character in the middle of a line. This is why all methods in
+<code class="language-plaintext highlighter-rouge">ParchmentDocument</code> have an extra step which applies heuristic rules to
+the change (there is one method which skips this step, <code class="language-plaintext highlighter-rouge">compose</code>,
+read more on it later) before actually composing it.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">ParchmentDocument.format</code> method returns an instance of <code class="language-plaintext highlighter-rouge">Delta</code> which
+was actually applied to the document. For the above scenario it would
+look like this:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="nl">"retain"</span><span class="p">:</span><span class="w"> </span><span class="mi">35</span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="nl">"retain"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nl">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nl">"heading"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The above change applies <code class="language-plaintext highlighter-rouge">h2</code> style to the 36th character in the
+document, that’s the <em>newline</em> character of the first line, exactly
+what user intended to do.</p>
+
+<p>There are more similar scenarios which are covered by heuristic rules
+to ensure consistency with the document model and provide better UX.</p>
+
+<h3 id="parchmentdocumentcompose-and-skipping-heuristic-rules"><code class="language-plaintext highlighter-rouge">ParchmentDocument.compose()</code> and skipping heuristic rules</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">compose()</code> method is the only method which skips the step of
+applying heuristic rules and therefore <strong>should be used with great
+care</strong> as it can result in corrupted document state.</p>
+
+<p>Use this method when you are sure that the change you are about to compose
+conforms to the document model and data format semantics.</p>
+
+<p>This method exists mostly to enable following use cases:</p>
+
+<ul>
+  <li><strong>Collaborative editing</strong>, when a change came from a different site and has already been normalized by heuristic rules on that site. Care must be taken to ensure that this change is based on the same revision of the document, and if not, transformed against any local changes before composing.</li>
+  <li><strong>Change history and revisioning</strong>, when a change came from a revision history stored on a server or a database. Similarly, care must be taken to transform the change against any local (uncommitted) changes before composing.</li>
+</ul>
+
+<p>When composing a change which came from a different site or server make
+sure to use <code class="language-plaintext highlighter-rouge">ChangeSource.remote</code> when calling <code class="language-plaintext highlighter-rouge">compose()</code>. This allows
+you to distinguish such changes from local changes made by the user
+when listening on <code class="language-plaintext highlighter-rouge">ParchmentDocument.changes</code> stream.</p>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        
+        <p class="copyright">Fleather maintained by <a href="https://github.com/fleather-editor">fleather-editor</a></p>
+        
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -7,7 +7,7 @@ A Web demo of Fleather can be found [here](./demo/index.html)
 
 # Documentation
 * [Quick Start](./doc/quick-start.md)
-* [Concepts](./doc/concepts/readme.md)
+* [Concepts](./README.md)
   * [Data Format and Document Model](./doc/concepts/data-and-document.md)
   * [Attributes](./doc/concepts/attributes.md)
   * [Heuristic rules](./doc/concepts/heuristics.md)

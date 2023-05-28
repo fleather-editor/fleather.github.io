@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,maximum-scale=2">
+    <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/style.css?v=283500f91980d91031e083409342feab137f96f8">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Embedding Images | Fleather</title>
+<meta name="generator" content="Jekyll v3.9.3" />
+<meta property="og:title" content="Embedding Images" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="http://localhost:4000/doc/images.html" />
+<meta property="og:url" content="http://localhost:4000/doc/images.html" />
+<meta property="og:site_name" content="Fleather" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Embedding Images" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","headline":"Embedding Images","url":"http://localhost:4000/doc/images.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          
+            <a id="forkme_banner" href="https://github.com/fleather-editor/fleather-editor.github.io">View on GitHub</a>
+          
+
+          <h1 id="project_title">Fleather</h1>
+          <h2 id="project_tagline"></h2>
+
+          
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2 id="embedding-images">Embedding Images</h2>
+
+<blockquote>
+  <p>Note that Image API is considered experimental and is likely to be
+changed in backward incompatible ways. If this happens all changes will be
+described in detail in the changelog to simplify upgrading.</p>
+</blockquote>
+
+<p>Fleather supports embedding images. In order to handle images in
+your application you need to implement <code class="language-plaintext highlighter-rouge">FleatherImageDelegate</code> interface which
+looks like this:</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">FleatherImageDelegate</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="c1">/// Unique key to identify camera source.</span>
+  <span class="n">S</span> <span class="kd">get</span> <span class="n">cameraSource</span><span class="o">;</span>
+
+  <span class="c1">/// Unique key to identify gallery source.</span>
+  <span class="n">S</span> <span class="kd">get</span> <span class="n">gallerySource</span><span class="o">;</span>
+
+  <span class="c1">/// Builds image widget for specified image [key].</span>
+  <span class="c1">///</span>
+  <span class="c1">/// The [key] argument contains value which was previously returned from</span>
+  <span class="c1">/// [pickImage].</span>
+  <span class="n">Widget</span> <span class="n">buildImage</span><span class="o">(</span><span class="n">BuildContext</span> <span class="n">context</span><span class="o">,</span> <span class="kt">String</span> <span class="n">key</span><span class="o">);</span>
+
+  <span class="c1">/// Picks an image from specified [source].</span>
+  <span class="c1">///</span>
+  <span class="c1">/// Returns unique string key for the selected image. Returned key is stored</span>
+  <span class="c1">/// in the document.</span>
+  <span class="c1">///</span>
+  <span class="c1">/// Depending on your application returned key may represent a path to</span>
+  <span class="c1">/// an image file on user's device, an HTTP link, or an identifier generated</span>
+  <span class="c1">/// by a file hosting service like AWS S3 or Google Drive.</span>
+  <span class="n">Future</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span> <span class="n">pickImage</span><span class="o">(</span><span class="n">S</span> <span class="kn">source</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>There is no default implementation of this interface since resolving image
+sources is always application-specific.</p>
+
+<blockquote>
+  <p>Note that prior to 0.7.0 Fleather did provide simple default implementation of
+<code class="language-plaintext highlighter-rouge">FleatherImageDelegate</code> however it was removed as it introduced unnecessary
+dependency on <code class="language-plaintext highlighter-rouge">image_picker</code> plugin.</p>
+</blockquote>
+
+<h3 id="implementing-fleatherimagedelegate">Implementing FleatherImageDelegate</h3>
+
+<p>For this example we will use <a href="https://pub.dev/packages/image_picker">image_picker</a>
+plugin which allows us to select images from device’s camera or photo gallery.</p>
+
+<p>Let’s start from the <code class="language-plaintext highlighter-rouge">pickImage</code> method:</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="s">'package:image_picker/image_picker.dart'</span><span class="o">;</span>
+
+<span class="kd">class</span> <span class="nc">MyAppFleatherImageDelegate</span> <span class="kd">implements</span> <span class="n">FleatherImageDelegate</span><span class="o">&lt;</span><span class="n">ImageSource</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="nd">@override</span>
+  <span class="n">Future</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span> <span class="n">pickImage</span><span class="o">(</span><span class="n">ImageSource</span> <span class="kn">source</span><span class="o">)</span> <span class="n">async</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">file</span> <span class="o">=</span> <span class="n">await</span> <span class="n">ImagePicker</span><span class="o">.</span><span class="na">pickImage</span><span class="o">(</span><span class="kn">source</span><span class="o">:</span> <span class="kn">source</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">file</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="c1">// We simply return the absolute path to selected file.</span>
+    <span class="k">return</span> <span class="n">file</span><span class="o">.</span><span class="na">uri</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>This method is responsible for initiating image selection flow (either using
+camera or gallery), handling result of selection and returning a string value
+which essentially serves as an identifier for the image.</p>
+
+<p>Returned value is stored in the document Delta and later on used to build the
+appropriate image widget.</p>
+
+<p>It is up to the developer to define what this value represents.</p>
+
+<p>In the above example we simply return a full path to the file on user’s device,
+e.g. <code class="language-plaintext highlighter-rouge">file:///Users/something/something/image.jpg</code>. Some other examples
+may include a web link, <code class="language-plaintext highlighter-rouge">https://myapp.com/images/some.jpg</code> or an
+arbitrary string like an identifier of an image in a cloud storage like AWS S3.</p>
+
+<p>For instance, if you upload files to your server you can initiate this task
+in <code class="language-plaintext highlighter-rouge">pickImage</code> as follows:</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">MyAppFleatherImageDelegate</span> <span class="kd">implements</span> <span class="n">FleatherImageDelegate</span><span class="o">&lt;</span><span class="n">ImageSource</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="kd">final</span> <span class="n">MyFileStorage</span> <span class="n">storage</span><span class="o">;</span>
+  <span class="n">MyAppFleatherImageDelegate</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">storage</span><span class="o">);</span>
+
+  <span class="nd">@override</span>
+  <span class="n">Future</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span> <span class="n">pickImage</span><span class="o">(</span><span class="n">ImageSource</span> <span class="kn">source</span><span class="o">)</span> <span class="n">async</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">file</span> <span class="o">=</span> <span class="n">await</span> <span class="n">ImagePicker</span><span class="o">.</span><span class="na">pickImage</span><span class="o">(</span><span class="kn">source</span><span class="o">:</span> <span class="kn">source</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">file</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="c1">// Use my storage service to upload selected file. The uploadImage method</span>
+    <span class="c1">// returns unique ID of newly uploaded image on my server.</span>
+    <span class="kd">final</span> <span class="kt">String</span> <span class="n">imageId</span> <span class="o">=</span> <span class="n">await</span> <span class="n">storage</span><span class="o">.</span><span class="na">uploadImage</span><span class="o">(</span><span class="n">file</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">imageId</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Next we need to implement <code class="language-plaintext highlighter-rouge">buildImage</code>. This method takes <code class="language-plaintext highlighter-rouge">imageSource</code> argument
+which contains that same string you returned from <code class="language-plaintext highlighter-rouge">pickImage</code>. Here you can
+use this value to create a Flutter widget which renders the image. Normally
+you would return the standard <code class="language-plaintext highlighter-rouge">Image</code> widget from this method, but it is not
+a requirement. You are free to create a custom widget which, for instance,
+shows progress of upload operation that you initiated in the <code class="language-plaintext highlighter-rouge">pickImage</code> call.</p>
+
+<p>Assuming our first example where we returned full path to the image file on
+user’s device, our <code class="language-plaintext highlighter-rouge">buildImage</code> method can be as simple as following:</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">MyAppFleatherImageDelegate</span> <span class="kd">implements</span> <span class="n">FleatherImageDelegate</span><span class="o">&lt;</span><span class="n">ImageSource</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="c1">// ...</span>
+
+  <span class="nd">@override</span>
+  <span class="n">Widget</span> <span class="n">buildImage</span><span class="o">(</span><span class="n">BuildContext</span> <span class="n">context</span><span class="o">,</span> <span class="kt">String</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">file</span> <span class="o">=</span> <span class="n">File</span><span class="o">.</span><span class="na">fromUri</span><span class="o">(</span><span class="n">Uri</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+    <span class="c1">/// Create standard [FileImage] provider. If [key] was an HTTP link</span>
+    <span class="c1">/// we could use [NetworkImage] instead.</span>
+    <span class="kd">final</span> <span class="n">image</span> <span class="o">=</span> <span class="n">FileImage</span><span class="o">(</span><span class="n">file</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">Image</span><span class="o">(</span><span class="nl">image:</span> <span class="n">image</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>There is two more overrides we need to implement which configure source types
+used by Fleather toolbar:</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">MyAppFleatherImageDelegate</span> <span class="kd">implements</span> <span class="n">FleatherImageDelegate</span><span class="o">&lt;</span><span class="n">ImageSource</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="c1">// ...</span>
+  <span class="nd">@override</span>
+  <span class="n">ImageSource</span> <span class="kd">get</span> <span class="n">cameraSource</span> <span class="o">=&gt;</span> <span class="n">ImageSource</span><span class="o">.</span><span class="na">camera</span><span class="o">;</span>
+
+  <span class="nd">@override</span>
+  <span class="n">ImageSource</span> <span class="kd">get</span> <span class="n">gallerySource</span> <span class="o">=&gt;</span> <span class="n">ImageSource</span><span class="o">.</span><span class="na">gallery</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Now our image delegate is ready to be used by Fleather so the last step is to
+pass it to Fleather editor:</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="s">'package:fleather/fleather.dart'</span><span class="o">;</span>
+
+<span class="kd">class</span> <span class="nc">MyAppPageState</span> <span class="kd">extends</span> <span class="n">State</span><span class="o">&lt;</span><span class="n">MyAppPage</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="n">FocueNode</span> <span class="n">_focusNode</span> <span class="o">=</span> <span class="n">FocusNode</span><span class="o">();</span>
+  <span class="n">FleatherController</span> <span class="n">_controller</span><span class="o">;</span>
+
+  <span class="c1">// ...</span>
+
+  <span class="nd">@override</span>
+  <span class="n">Widget</span> <span class="n">build</span><span class="o">(</span><span class="n">BuildContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">editor</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FleatherEditor</span><span class="o">(</span>
+      <span class="nl">focusNode:</span> <span class="n">_focusNode</span><span class="o">,</span>
+      <span class="nl">controller:</span> <span class="n">_controller</span><span class="o">,</span>
+      <span class="nl">imageDelegate:</span> <span class="n">MyAppFleatherImageDelegate</span><span class="o">(),</span>
+    <span class="o">);</span>
+
+    <span class="c1">// ... do more with this page's layout</span>
+
+    <span class="k">return</span> <span class="n">FleatherScaffold</span><span class="o">(</span>
+      <span class="nl">child:</span> <span class="n">Container</span><span class="o">(</span>
+        <span class="c1">// ... customize</span>
+        <span class="nl">child:</span> <span class="n">editor</span><span class="o">,</span>
+      <span class="o">)</span>
+    <span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>When <code class="language-plaintext highlighter-rouge">imageDelegate</code> field is set to non-null value it automatically enables
+image selection button in Fleather’s style toolbar.</p>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        
+        <p class="copyright">Fleather maintained by <a href="https://github.com/fleather-editor">fleather-editor</a></p>
+        
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+  </body>
+</html>
