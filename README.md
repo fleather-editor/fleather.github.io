@@ -1,8 +1,8 @@
-# Summary
-
-* [Release Notes](./doc/release-notes.md)
+# Release Notes
   * [Fleather Changelog](./packages/fleather/CHANGELOG.md)
   * [Parchment Changelog](./packages/parchment/CHANGELOG.md)
+
+# Documentation
 * [Quick Start](./doc/quick-start.md)
 * [Concepts](./doc/concepts/readme.md)
   * [Data Format and Document Model](./doc/concepts/data-and-document.md)
@@ -11,6 +11,6 @@
 * [Embedding Images](./doc/images.md)
 * [FAQ](./doc/faq.md)
 
-## Community
+# Community
 
 * [Contribute on Github](https://github.com/fleather-editor/fleather)
