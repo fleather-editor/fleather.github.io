@@ -3,15 +3,20 @@
 
 @import "{{ site.theme }}";
 
+.crop {
+  overflow: hidden;
+  height: 150px; 
+}
 img.banner {
   border-style: none;
   box-shadow: 0 0 0 #ebebeb;
   -webkit-box-shadow: 0 0 O #ebebeb;
   -moz-box-shadow: 0 0 0 #ebebeb;
   -o-box-shadow: 0 0 0 #ebebeb;
-  -ms-box-shadow: 0 0 0 #ebebeb;
-  -o-object-fit: cover;
-  object-fit: contain;
+  -ms-box-shadow: 0 0 0 #ebebeb; 
+  object-fit: cover;
+  margin-top: -35px;
+
 }
 
 #header_wrap {
