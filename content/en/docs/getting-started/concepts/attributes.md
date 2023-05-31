@@ -16,7 +16,7 @@ toc: true
 ## Style Attributes
 
 > If you haven't yet, read introduction to Fleather document model called
-> Parchment [here](data-and-document.md).
+> Parchment [here](../data-and-document).
 
 Style attributes in Parchment documents are simple key-value pairs, where
 keys identify the attribute and value describes the style applied, for
@@ -39,14 +39,20 @@ only on the line as a whole.
 Below table summarizes information about all currently supported
 attributes in Fleather:
 
-| Name    | Key       | Scope    | Type     | Valid values                           |
-| ------- | --------- | -------- | -------- | -------------------------------------- |
-| Bold    | `b`       | `inline` | `bool`   | `true`                                 |
-| Italic  | `i`       | `inline` | `bool`   | `true`                                 |
-| Link    | `a`       | `inline` | `String` | Non-empty string                       |
-| Heading | `heading` | `line`   | `int`    | `1`, `2` and `3`                       |
-| Block   | `block`   | `line`   | `String` | `"ul"`, `"ol"`, `"code"` and `"quote"` |
-| Embed   | `embed`   | `inline` | `Map`    | `"hr"`, `"image"`                      |
+| Name            | Key         | Scope    | Type     | Valid values                                 |
+| --------------- | ----------- | -------- | -------- | -------------------------------------------- |
+| Bold            | `b`         | `inline` | `bool`   | `true`                                       |
+| Italic          | `i`         | `inline` | `bool`   | `true`                                       |
+| Strikethrough   | `s`         | `inline` | `bool`   | `true`                                       |
+| Code            | `c`         | `inline` | `bool`   | `true`                                       |
+| Backgound color | `bg`        | `inline` | `int`    | 32 lower bits of `int`                       |
+| Link            | `a`         | `inline` | `String` | Non-empty string                             |
+| Heading         | `heading`   | `line`   | `int`    | `1`, `2` and `3`                             |
+| Block           | `block`     | `line`   | `String` | `"ul"`, `"ol"`, `"code"`, `"quote"`          |
+| Direction       | `direction` | `line`   | `String` | `"rtl"`, `"ltr"`                             |
+| Indentation     | `indent`    | `line`   | `int`    | any positive `int`                           |
+| Alignment       | `alignment` | `line`   | `String` | `"left"`, `"right"`, `"center"`, `"justify"` |
+| Embed           | `embed`     | `inline` | `Map`    | `"hr"`, `"image"`, custom embeds             |
 
 Removing a specific style is as simple as setting corresponding
 attribute to `null`.
@@ -131,4 +137,4 @@ a friendly user experience without this extra level in a document model.
 The `block` attribute in Parchment documents is line-scoped. To change a
 group of lines from "bullet list" to "number list" we need to update
 block style on each of the lines individually. Fleather editor abstracts
-away such details with help of [heuristic rules](heuristics.md).
+away such details with help of [heuristic rules](../heuristics).

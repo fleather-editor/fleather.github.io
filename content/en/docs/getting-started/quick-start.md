@@ -39,14 +39,16 @@ see [official documentation](https://flutter.dev/docs/get-started/test-drive).
 
 ### Add Fleather to your project
 
-Add `fleather` package as a dependency to `pubspec.yaml` of your new project:
+Add `fleather` & `quill_delta` package as a dependency to `pubspec.yaml` of your new project:
 
 ```yaml
 dependencies:
   fleather: [ latest_version ]
+  quill_delta: [ latest_version ]
 ```
+`quill_delta` provide the tools to create and manipulate `Delta`s, more on this [here](/docs/getting-started/concepts/data-and-document/)
 
-And run `flutter packages get`. This installs [fleather](https://pub.dev/packages/fleather) and all
+And run `flutter packages get`. This installs [fleather](https://pub.dev/packages/fleather), [quill_delta](https://pub.dev/packages/quill_delta) and all
 required dependencies, including [parchment](https://pub.dev/packages/parchment) package which
 implements Fleather's document model.
 
@@ -62,21 +64,25 @@ app.
 Create a new file `lib/src/editor_page.dart` and type in (or paste) the following:
 
 ```dart
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:fleather/fleather.dart';
 
 class EditorPage extends StatefulWidget {
+  const EditorPage({super.key});
+
   @override
   EditorPageState createState() => EditorPageState();
 }
 
 class EditorPageState extends State<EditorPage> {
   /// Allows to control the editor and the document.
-  FleatherController _controller;
+  FleatherController? _controller;
 
   /// Fleather editor like any other input field requires a focus node.
-  FocusNode _focusNode;
+  late FocusNode _focusNode;
 
   @override
   void initState() {
@@ -89,16 +95,25 @@ class EditorPageState extends State<EditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Note that the editor requires special `FleatherScaffold` widget to be
-    // one of its parents.
+    // Note that a default tools bar is provided
+    // Here we decide to position it at the buttom for mobile device and
+    // at the top for desktops
     return Scaffold(
-      appBar: AppBar(title: Text("Editor page")),
-      body: FleatherScaffold(
-        child: FleatherEditor(
-          padding: EdgeInsets.all(16),
-          controller: _controller,
-          focusNode: _focusNode,
-        ),
+      appBar: AppBar(title: const Text('Editor page')),
+      body: Column(
+        children: [
+          if (!Platform.isAndroid && !Platform.isIOS)
+            FleatherToolbar.basic(controller: _controller),
+          Expanded(
+            child: FleatherEditor(
+              padding: const EdgeInsets.all(16),
+              controller: _controller,
+              focusNode: _focusNode,
+            ),
+          ),
+          if (Platform.isAndroid || Platform.isIOS)
+            FleatherToolbar.basic(controller: _controller),
+        ],
       ),
     );
   }
@@ -108,8 +123,7 @@ class EditorPageState extends State<EditorPage> {
     // For simplicity we hardcode a simple document with one line of text
     // saying "Fleather Quick Start".
     // (Note that delta must always end with newline.)
-    final Delta delta = Delta()
-      ..insert("Fleather Quick Start\n");
+    final Delta delta = Delta()..insert('Fleather Quick Start\n');
     return ParchmentDocument.fromDelta(delta);
   }
 }
@@ -127,31 +141,35 @@ import 'package:flutter/material.dart';
 import 'src/editor_page.dart';
 
 void main() {
-  runApp(QuickStartApp());
+  runApp(const QuickStartApp());
 }
 
 class QuickStartApp extends StatelessWidget {
+  const QuickStartApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Quick Start',
-      home: HomePage(),
+      home: const HomePage(),
       routes: {
-        "/editor": (context) => EditorPage(),
+        "/editor": (context) => const EditorPage(),
       },
     );
   }
 }
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final navigator = Navigator.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text("Quick Start")),
+      appBar: AppBar(title: const Text("Quick Start")),
       body: Center(
-        child: FlatButton(
-          child: Text("Open editor"),
+        child: TextButton(
+          child: const Text("Open editor"),
           onPressed: () => navigator.pushNamed("/editor"),
         ),
       ),
@@ -185,12 +203,15 @@ class EditorPageState extends State<EditorPage> {
   void _saveDocument(BuildContext context) {
     // Parchment documents can be easily serialized to JSON by passing to
     // `jsonEncode` directly
-    final contents = jsonEncode(_controller.document);
+    final contents = jsonEncode(_controller!.document);
     // For this example we save our document to a temporary file.
-    final file = File(Directory.systemTemp.path + "/quick_start.json");
+
+    final file = File('${Directory.systemTemp.path}/quick_start.json');
     // And show a snack bar on success.
     file.writeAsString(contents).then((_) {
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text("Saved.")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Saved.')),
+      );
     });
   }
 }
@@ -204,7 +225,7 @@ Note that `File.writeAsString` is an asynchronous method and returns Dart's
 `Future.then`.
 
 One more important bit here is that we pass `BuildContext` argument to
-`_saveDocument`. This is required to get access to our page's `Scaffold` state, so that we can show
+`_saveDocument`. This is required to get access to our page's `ScaffoldMessenger` state, so that we can show
 a `SnackBar`.
 
 Now we just need to add a button to the AppBar, so we need to modify `build`
@@ -224,13 +245,10 @@ class EditorPageState extends State<EditorPage> {
         title: Text("Editor page"),
         // <<< begin change
         actions: <Widget>[
-          Builder(
-            builder: (context) =>
-                IconButton(
-                  icon: Icon(Icons.save),
-                  onPressed: () => _saveDocument(context),
-                ),
-          )
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: () => _saveDocument(context),
+          ),
         ],
         // end change >>>
       ),
@@ -245,9 +263,6 @@ class EditorPageState extends State<EditorPage> {
   }
 }
 ```
-
-We have to use `Builder` here for our icon button because we need `BuildContext`
-which has access to `Scaffold` widget's state.
 
 Now we can reload our app, hit "Save" button and see the snack bar.
 
@@ -317,32 +332,35 @@ class EditorPageState extends State<EditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    // If _controller is null we show Material Design loader, otherwise
-    // display Fleather editor.
-    final Widget body = (_controller == null)
-        ? Center(child: CircularProgressIndicator())
-        : FleatherrScaffold(
-      child: FleatherEditor(
-        padding: EdgeInsets.all(16),
-        controller: _controller,
-        focusNode: _focusNode,
-      ),
-    );
-
     return Scaffold(
       appBar: AppBar(
-        title: Text("Editor page"),
+        title: const Text('Editor page'),
         actions: <Widget>[
-          Builder(
-            builder: (context) =>
-                IconButton(
-                  icon: Icon(Icons.save),
-                  onPressed: () => _saveDocument(context),
-                ),
-          )
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: () => _saveDocument(context),
+          ),
         ],
       ),
-      body: body,
+      // Note that the editor requires special `FleatherScaffold` widget to be
+      // one of its parents.
+      body: _controller == null
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                if (!Platform.isAndroid && !Platform.isIOS)
+                  FleatherToolbar.basic(controller: _controller!),
+                Expanded(
+                  child: FleatherEditor(
+                    padding: const EdgeInsets.all(16),
+                    controller: _controller!,
+                    focusNode: _focusNode,
+                  ),
+                ),
+                if (Platform.isAndroid || Platform.isIOS)
+                  FleatherToolbar.basic(controller: _controller!),
+              ],
+            ),
     );
   }
 }
