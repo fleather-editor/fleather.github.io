@@ -139,5 +139,5 @@ fairly simple and predictable.
 Learn more about other building blocks of Parchment documents in
 documentation for [attributes][] and [heuristics][].
 
-[heuristics]: heuristics.md
-[attributes]: attributes.md
+[heuristics]: ../heuristics
+[attributes]: ../attributes
