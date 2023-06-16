@@ -46,8 +46,9 @@ attributes in Fleather:
 | Strikethrough   | `s`         | `inline` | `bool`   | `true`                                       |
 | Code            | `c`         | `inline` | `bool`   | `true`                                       |
 | Backgound color | `bg`        | `inline` | `int`    | 32 lower bits of `int`                       |
+| Foregound color | `fg`        | `inline` | `int`    | 32 lower bits of `int`                       |
 | Link            | `a`         | `inline` | `String` | Non-empty string                             |
-| Heading         | `heading`   | `line`   | `int`    | `1`, `2` and `3`                             |
+| Heading         | `heading`   | `line`   | `int`    | `1` to `6`                                   |
 | Block           | `block`     | `line`   | `String` | `"ul"`, `"ol"`, `"code"`, `"quote"`          |
 | Direction       | `direction` | `line`   | `String` | `"rtl"`, `"ltr"`                             |
 | Indentation     | `indent`    | `line`   | `int`    | any positive `int`                           |
